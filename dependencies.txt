@@ -1,0 +1,5 @@
+## Dependencies
+   - [linorobot2](https://github.com/linorobot/linorobot2)
+   - [linorobot2_hardware_esp32](https://github.com/robofoundry/linorobot2_hardware_hippo_esp32_fix)
+   - [micro_ros_setup](https://github.com/micro-ROS/micro_ros_setup)
+   - [ros2_humble](https://docs.ros.org/en/humble/Installation/Ubuntu-Install-Debs.html)
