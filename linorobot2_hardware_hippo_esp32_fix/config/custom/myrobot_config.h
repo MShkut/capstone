@@ -65,7 +65,8 @@
 #define LED_PIN 2                // built-in ESP32 LED or any free GPIO
 
 // IMU (optional)
-#define USE_IMU false
+#define USE_IMU true
+#define USE_REALSENSE_IMU
 // #define IMU imu              // only if USE_IMU true
 
 #endif
