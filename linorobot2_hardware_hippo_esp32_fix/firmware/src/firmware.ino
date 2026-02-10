@@ -330,7 +330,7 @@ bool createEntities()
         &camera_imu_subscriber, 
         &node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
-        TOPIC_PREFIX "/camera/imu"
+        TOPIC_PREFIX "/camera/camera/imu"
     ));
     // create timer for actuating the motors at 50 Hz (1000/20)
     const unsigned int control_timeout = 20;
