@@ -34,11 +34,10 @@ ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0 -b 115200
 
 ### Terminal 2: RealSense Camera
 ```bash
-source ~/ros2_ws/install/setup.bash
 ros2 launch realsense2_camera rs_launch.py \
   enable_gyro:=true \
   enable_accel:=true \
-  unite_imu_method:=linear_interpolation
+  unite_imu_method:=2 \
 ```
 
 **Expected output:** Camera streaming messages
