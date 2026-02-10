@@ -17,6 +17,7 @@
 
 // include the header of your new driver here similar to default_imu.h
 #include "default_imu.h"
+#include "realsense_imu.h"
 
 // now you can create a config constant that you can use in lino_base_config.h
 #ifdef USE_GY85_IMU
@@ -43,6 +44,10 @@
 #ifndef IMU
     #define USE_FAKE_IMU
     #define IMU FakeIMU
+#endif
+
+#ifdef USE_REALSENSE_IMU
+    #define IMU RealsenseIMU
 #endif
 
 #endif
