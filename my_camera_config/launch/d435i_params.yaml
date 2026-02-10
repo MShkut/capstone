@@ -1,0 +1,9 @@
+/camera/camera:
+  ros__parameters:
+    enable_gyro: true
+    enable_accel: true
+    unite_imu_method: 2
+    # Specific QoS settings for the RealSense driver
+    sensor_qos: "SENSOR_DATA" # Default is Best Effort, try "DEFAULT" for Reliable
+    # If the above doesn't work, we use the override syntax:
+    qos_overrides./camera/camera/imu.publisher.reliability: "reliable"
