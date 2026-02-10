@@ -96,6 +96,7 @@ rcl_publisher_t mag_publisher;
 rcl_subscription_t twist_subscriber;
 rcl_publisher_t battery_publisher;
 rcl_publisher_t range_publisher;
+rcl_subscription_t camera_imu_subscriber;
 
 nav_msgs__msg__Odometry odom_msg;
 sensor_msgs__msg__Imu imu_msg;
@@ -103,6 +104,7 @@ sensor_msgs__msg__MagneticField mag_msg;
 geometry_msgs__msg__Twist twist_msg;
 sensor_msgs__msg__BatteryState battery_msg;
 sensor_msgs__msg__Range range_msg;
+sensor_msgs__msg__Imu camera_imu_msg;
 
 rclc_executor_t executor;
 rclc_support_t support;
@@ -268,6 +270,12 @@ void twistCallback(const void * msgin)
     prev_cmd_time = millis();
 }
 
+void cameraImuCallback(const void * msgin) 
+{
+    const sensor_msgs__msg__Imu * msg = (const sensor_msgs__msg__Imu *)msgin;
+    imu.updateIMUData(msg);
+}
+
 bool createEntities()
 {
     syslog(LOG_INFO, "%s %lu", __FUNCTION__, millis());
@@ -317,6 +325,13 @@ bool createEntities()
         ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
         TOPIC_PREFIX "cmd_vel"
     ));
+    // create camera IMU subscriber
+    RCCHECK(rclc_subscription_init_default( 
+        &camera_imu_subscriber, 
+        &node,
+        ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
+        TOPIC_PREFIX "/camera/imu"
+    ));
     // create timer for actuating the motors at 50 Hz (1000/20)
     const unsigned int control_timeout = 20;
     RCCHECK(rclc_timer_init_default( 
@@ -343,9 +358,9 @@ bool createEntities()
     RCCHECK(rclc_executor_init(&executor, &support.context, 4, & allocator));
     RCCHECK(rclc_executor_add_subscription(
         &executor, 
-        &twist_subscriber, 
-        &twist_msg, 
-        &twistCallback, 
+        &camera_imu_subscriber, 
+        &camera_imu_msg, 
+        &cameraImuCallback, 
         ON_NEW_DATA
     ));
     RCCHECK(rclc_executor_add_timer(&executor, &control_timer));
@@ -370,6 +385,7 @@ bool destroyEntities()
     rcl_publisher_fini(&mag_publisher, &node);
     rcl_publisher_fini(&battery_publisher, &node);
     rcl_publisher_fini(&range_publisher, &node);
+    rcl_subscription_fini(&camera_imu_subscriber, &node);
     rcl_subscription_fini(&twist_subscriber, &node);
     rcl_timer_fini(&control_timer);
     rcl_timer_fini(&battery_timer);
