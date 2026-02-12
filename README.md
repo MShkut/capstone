@@ -13,7 +13,7 @@
 ### 1. Build and Flash ESP32 Firmware
 
 ```bash
-cd ~/linorobot2_hardware_hippo_esp32_fix_ws/src/linorobot2_hardware_hippo_esp32_fix
+cd ~/linorobot2_hardware_hippo_esp32_fix_ws/firmware
 pio run
 pio run --target upload --upload-port /dev/ttyUSB0
 ```
