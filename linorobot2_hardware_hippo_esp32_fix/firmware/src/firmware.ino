@@ -96,7 +96,7 @@ rcl_publisher_t mag_publisher;
 rcl_subscription_t twist_subscriber;
 rcl_publisher_t battery_publisher;
 rcl_publisher_t range_publisher;
-rcl_subscription_t camera_imu_subscriber;
+
 
 nav_msgs__msg__Odometry odom_msg;
 sensor_msgs__msg__Imu imu_msg;
@@ -104,22 +104,7 @@ sensor_msgs__msg__MagneticField mag_msg;
 geometry_msgs__msg__Twist twist_msg;
 sensor_msgs__msg__BatteryState battery_msg;
 sensor_msgs__msg__Range range_msg;
-sensor_msgs__msg__Imu camera_imu_msg;
 
-#ifdef USE_REALSENSE_IMU
-// QoS profile for RealSense IMU (BEST_EFFORT to match camera)
-static const rmw_qos_profile_t REALSENSE_IMU_QOS = {
-    RMW_QOS_POLICY_HISTORY_KEEP_LAST,
-    10,
-    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
-    RMW_QOS_POLICY_DURABILITY_VOLATILE,
-    RMW_QOS_DEADLINE_DEFAULT,
-    RMW_QOS_LIFESPAN_DEFAULT,
-    RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
-    RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
-    false
-};
-#endif
 
 rclc_executor_t executor;
 rclc_support_t support;
@@ -285,12 +270,6 @@ void twistCallback(const void * msgin)
     prev_cmd_time = millis();
 }
 
-void cameraImuCallback(const void * msgin) 
-{
-    const sensor_msgs__msg__Imu * msg = (const sensor_msgs__msg__Imu *)msgin;
-    imu.updateIMUData(msg);
-}
-
 bool createEntities()
 {
     syslog(LOG_INFO, "%s %lu", __FUNCTION__, millis());
@@ -306,7 +285,7 @@ bool createEntities()
         ROSIDL_GET_MSG_TYPE_SUPPORT(nav_msgs, msg, Odometry),
         TOPIC_PREFIX "odom/unfiltered"
     ));
-    // create IMU publisher
+    /*// create IMU publisher
     RCCHECK(rclc_publisher_init_default( 
         &imu_publisher, 
         &node,
@@ -332,21 +311,13 @@ bool createEntities()
 	&node,
 	ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Range),
 	TOPIC_PREFIX "ultrasound"
-    ));
+    ));*/
     // create twist command subscriber
     RCCHECK(rclc_subscription_init_default( 
         &twist_subscriber, 
         &node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
         TOPIC_PREFIX "cmd_vel"
-    ));
-    // create camera IMU subscriber
-    RCCHECK(rclc_subscription_init(
-        &camera_imu_subscriber,
-        &node,
-        ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
-        "/camera/imu",
-        &REALSENSE_IMU_QOS
     ));
     // create timer for actuating the motors at 50 Hz (1000/20)
     const unsigned int control_timeout = 20;
@@ -356,7 +327,7 @@ bool createEntities()
         RCL_MS_TO_NS(control_timeout),
         controlCallback
     ));
-    const unsigned int battery_timer_timeout = 2000;
+    /*const unsigned int battery_timer_timeout = 2000;
     RCCHECK(rclc_timer_init_default(
         &battery_timer,
         &support,
@@ -369,20 +340,19 @@ bool createEntities()
         &support,
         RCL_MS_TO_NS(range_timer_timeout),
         rangeCallback
-    ));
+    ));*/
     executor = rclc_executor_get_zero_initialized_executor();
-    RCCHECK(rclc_executor_init(&executor, &support.context, 4, & allocator));
+    RCCHECK(rclc_executor_init(&executor, &support.context, 2, &allocator));
     RCCHECK(rclc_executor_add_subscription(
         &executor, 
-        &camera_imu_subscriber, 
-        &camera_imu_msg, 
-        &cameraImuCallback, 
+        &twist_subscriber, 
+        &twist_msg, 
+        &twistCallback, 
         ON_NEW_DATA
     ));
     RCCHECK(rclc_executor_add_timer(&executor, &control_timer));
-    RCCHECK(rclc_executor_add_timer(&executor, &battery_timer));
-    RCCHECK(rclc_executor_add_timer(&executor, &range_timer));
-
+    /*RCCHECK(rclc_executor_add_timer(&executor, &battery_timer));
+    RCCHECK(rclc_executor_add_timer(&executor, &range_timer));*/
     // synchronize time with the agent
     syncTime();
     //digitalWrite(LED_PIN, HIGH);
@@ -397,15 +367,14 @@ bool destroyEntities()
     (void) rmw_uros_set_context_entity_destroy_session_timeout(rmw_context, 0);
 
     rcl_publisher_fini(&odom_publisher, &node);
-    rcl_publisher_fini(&imu_publisher, &node);
+    /*rcl_publisher_fini(&imu_publisher, &node);
     rcl_publisher_fini(&mag_publisher, &node);
     rcl_publisher_fini(&battery_publisher, &node);
-    rcl_publisher_fini(&range_publisher, &node);
-    rcl_subscription_fini(&camera_imu_subscriber, &node);
+    rcl_publisher_fini(&range_publisher, &node);*/
     rcl_subscription_fini(&twist_subscriber, &node);
     rcl_timer_fini(&control_timer);
-    rcl_timer_fini(&battery_timer);
-    rcl_timer_fini(&range_timer);
+    /*rcl_timer_fini(&battery_timer);
+    rcl_timer_fini(&range_timer);*/
     rclc_executor_fini(&executor);
     rcl_node_fini(&node);
     rclc_support_fini(&support);
@@ -485,7 +454,7 @@ void moveBase()
 void publishData()
 {
     odom_msg = odometry.getData();
-    imu_msg = imu.getData();
+    /*imu_msg = imu.getData();
     mag_msg = mag.getData();
 #ifdef MAG_BIAS
     const float mag_bias[3] = MAG_BIAS;
@@ -511,21 +480,29 @@ void publishData()
     imu_msg.orientation.x = cy * cp * sr - sy * sp * cr;
     imu_msg.orientation.y = sy * cp * sr + cy * sp * cr;
     imu_msg.orientation.z = sy * cp * cr - cy * sp * sr;
-    imu_msg.orientation.w = cy * cp * cr + sy * sp * sr;
+    imu_msg.orientation.w = cy * cp * cr + sy * sp * sr;*/
 
     struct timespec time_stamp = getTime();
 
     odom_msg.header.stamp.sec = time_stamp.tv_sec;
     odom_msg.header.stamp.nanosec = time_stamp.tv_nsec;
+    // Set frame IDs for odometry
+    odom_msg.header.frame_id.data = ODOM_FRAME_ID;
+    odom_msg.header.frame_id.size = strlen(ODOM_FRAME_ID);
+    odom_msg.header.frame_id.capacity = strlen(ODOM_FRAME_ID) + 1;
+    
+    odom_msg.child_frame_id.data = BASE_FRAME_ID;
+    odom_msg.child_frame_id.size = strlen(BASE_FRAME_ID);
+    odom_msg.child_frame_id.capacity = strlen(BASE_FRAME_ID) + 1;
 
-    imu_msg.header.stamp.sec = time_stamp.tv_sec;
+    /*imu_msg.header.stamp.sec = time_stamp.tv_sec;
     imu_msg.header.stamp.nanosec = time_stamp.tv_nsec;
 
     mag_msg.header.stamp.sec = time_stamp.tv_sec;
     mag_msg.header.stamp.nanosec = time_stamp.tv_nsec;
 
     RCSOFTCHECK(rcl_publish(&imu_publisher, &imu_msg, NULL));
-    RCSOFTCHECK(rcl_publish(&mag_publisher, &mag_msg, NULL));
+    RCSOFTCHECK(rcl_publish(&mag_publisher, &mag_msg, NULL));*/
     RCSOFTCHECK(rcl_publish(&odom_publisher, &odom_msg, NULL));
 }
 
