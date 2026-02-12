@@ -49,9 +49,12 @@
 #define LR_WHEELS_DISTANCE TRACK_WIDTH
 // Status LED
 #define LED_PIN 2                // built-in ESP32 LED or any free GPIO
+// TF Frames
+#define BASE_FRAME_ID "base_link"
+#define ODOM_FRAME_ID "odom"
 // IMU (optional)
-#define USE_IMU true
-#define USE_REALSENSE_IMU
+#define USE_IMU false
+//#define USE_REALSENSE_IMU
 
 // #define IMU imu              // only if USE_IMU true
 #endif
