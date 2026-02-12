@@ -48,7 +48,7 @@ launch_terminal() {
 }
 
 # Launch Terminal 1: Micro-ROS Agent
-echo -e "${BLUE}[1/3] Launching Micro-ROS Agent...${NC}"
+echo -e "${BLUE}[1/4] Launching Micro-ROS Agent...${NC}"
 launch_terminal "Micro-ROS Agent" \
     "source ~/microros_ws/install/setup.bash && \
      echo -e '${GREEN}Starting Micro-ROS Agent...${NC}' && \
@@ -93,6 +93,16 @@ launch_terminal "ROS2 Topics" \
 echo -e "${GREEN}✓ Topic Monitor terminal launched${NC}"
 echo ""
 
+# Launch Terminal 5: Teleoperation
+echo -e "${BLUE}[5/5] Launching Teleoperation...${NC}"
+launch_terminal "Teleoperation" \
+    "sleep 12 && \
+     echo -e '${GREEN}Starting Teleoperation...${NC}' && \
+     ros2 run teleop_twist_keyboard teleop_twist_keyboard"
+
+echo -e "${GREEN}✓ Teleoperation terminal launched${NC}"
+echo ""
+
 # Wait for everything to stabilize
 echo -e "${YELLOW}Waiting for all systems to initialize...${NC}"
 sleep 3
@@ -104,27 +114,13 @@ echo -e "${GREEN}========================================${NC}"
 echo ""
 echo -e "${RED}⚠️  WARNING: PID is currently disabled!${NC}"
 echo -e "${YELLOW}   Motors run at full PWM (ON/OFF only)${NC}"
-echo -e "${YELLOW}   Robot will run at maximum speed${NC}"
-echo -e "${YELLOW}   Calibrate robot and re-enable PID for speed control${NC}"
 echo ""
-echo -e "${BLUE}To control the robot, open a new terminal and run:${NC}"
-echo ""
-echo -e "  ${YELLOW}ros2 run teleop_twist_keyboard teleop_twist_keyboard${NC}"
-echo ""
-echo -e "${BLUE}Teleoperation Controls:${NC}"
-echo "  ┌─────────────────────────────────┐"
-echo "  │  i - Forward                    │"
-echo "  │  , - Backward                   │"
-echo "  │  j - Rotate Left                │"
-echo "  │  l - Rotate Right               │"
-echo "  │  k - Stop                       │"
-echo "  │  q/z - Increase/Decrease Speed  │"
-echo "  └─────────────────────────────────┘"
-echo ""
-echo -e "${YELLOW}Note: If teleop is not installed, run:${NC}"
-echo -e "  sudo apt install ros-humble-teleop-twist-keyboard"
-echo ""
-echo -e "${BLUE}Verify topics by checking the 'ROS2 Topics' terminal window${NC}"
+echo -e "${BLUE}5 terminals launched:${NC}"
+echo "  1. Micro-ROS Agent"
+echo "  2. RealSense Camera"
+echo "  3. EKF Node"
+echo "  4. Topic Monitor"
+echo "  5. Teleoperation (ready to control)"
 echo ""
 echo -e "${YELLOW}Expected topics:${NC}"
 echo "  • /cmd_vel"
