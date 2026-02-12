@@ -19,35 +19,21 @@
 #include "default_imu.h"
 #include "realsense_imu.h"
 
-// now you can create a config constant that you can use in lino_base_config.h
-#ifdef USE_GY85_IMU
-    // pass your built in class to IMU macro
-    #define IMU GY85IMU
-#endif
-
-#ifdef USE_MPU6050_IMU
-    #define IMU MPU6050IMU
-#endif
-
-#ifdef USE_MPU9150_IMU
-    #define IMU MPU9150IMU
-#endif
-
-#ifdef USE_MPU9250_IMU
-    #define IMU MPU9250IMU
-#endif
-
-#ifdef USE_QMI8658_IMU
-    #define IMU QMI8658IMU
-#endif
-
-#ifndef IMU
-    #define USE_FAKE_IMU
-    #define IMU FakeIMU
-#endif
-
 #ifdef USE_REALSENSE_IMU
     #define IMU RealsenseIMU
+#elif defined(USE_GY85_IMU)
+    #define IMU GY85IMU
+#elif defined(USE_MPU6050_IMU)
+    #define IMU MPU6050IMU
+#elif defined(USE_MPU9150_IMU)
+    #define IMU MPU9150IMU
+#elif defined(USE_MPU9250_IMU)
+    #define IMU MPU9250IMU
+#elif defined(USE_QMI8658_IMU)
+    #define IMU QMI8658IMU
+#else
+    #define USE_FAKE_IMU
+    #define IMU FakeIMU
 #endif
 
 #endif
