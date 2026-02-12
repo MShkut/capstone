@@ -106,6 +106,21 @@ sensor_msgs__msg__BatteryState battery_msg;
 sensor_msgs__msg__Range range_msg;
 sensor_msgs__msg__Imu camera_imu_msg;
 
+#ifdef USE_REALSENSE_IMU
+// QoS profile for RealSense IMU (BEST_EFFORT to match camera)
+static const rmw_qos_profile_t REALSENSE_IMU_QOS = {
+    RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+    10,
+    RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
+    RMW_QOS_POLICY_DURABILITY_VOLATILE,
+    RMW_QOS_DEADLINE_DEFAULT,
+    RMW_QOS_LIFESPAN_DEFAULT,
+    RMW_QOS_POLICY_LIVELINESS_SYSTEM_DEFAULT,
+    RMW_QOS_LIVELINESS_LEASE_DURATION_DEFAULT,
+    false
+};
+#endif
+
 rclc_executor_t executor;
 rclc_support_t support;
 rcl_allocator_t allocator;
@@ -326,11 +341,12 @@ bool createEntities()
         TOPIC_PREFIX "cmd_vel"
     ));
     // create camera IMU subscriber
-    RCCHECK(rclc_subscription_init_default( 
-        &camera_imu_subscriber, 
+    RCCHECK(rclc_subscription_init(
+        &camera_imu_subscriber,
         &node,
         ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, Imu),
-        TOPIC_PREFIX "/camera/camera/imu"
+        "/camera/imu",
+        &REALSENSE_IMU_QOS
     ));
     // create timer for actuating the motors at 50 Hz (1000/20)
     const unsigned int control_timeout = 20;
