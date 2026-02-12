@@ -24,7 +24,6 @@ pio run --target upload --upload-port /dev/ttyUSB0
 
 ### Terminal 1: Micro-ROS Agent
 ```bash
-source ~/microros_ws/install/setup.bash
 ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0 -b 115200
 ```
 
@@ -34,30 +33,17 @@ ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0 -b 115200
 
 ### Terminal 2: RealSense Camera
 ```bash
-ros2 launch realsense2_camera rs_launch.py \
-  enable_gyro:=true \
-  enable_accel:=true \
-  unite_imu_method:=2
+ros2 launch realsense2_camera rs_launch.py enable_gyro:=true enable_accel:=true unite_imu_method:=2
 ```
 
 **Expected output:** Camera streaming messages
 
 ---
 
-### Terminal 3: Verify Topics
+### Terminal 3: ekf
 ```bash
-ros2 topic list
+ros2 run robot_localization ekf_node --ros-args --params-file ~/ros2_ws/src/config/ekf_config.yaml
 ```
-
-**Should see:**
-- `/cmd_vel`
-- `/odom/unfiltered`
-- `/imu/data` (from ESP32)
-- `/camera/imu` (from RealSense)
-- `/camera/depth/image_rect_raw`
-- `/camera/color/image_raw`
-
----
 
 ### Terminal 4: Teleoperation
 ```bash
