@@ -17,11 +17,8 @@
 
 // include the header of your new driver here similar to default_imu.h
 #include "default_imu.h"
-#include "realsense_imu.h"
 
-#ifdef USE_REALSENSE_IMU
-    #define IMU RealsenseIMU
-#elif defined(USE_GY85_IMU)
+#if defined(USE_GY85_IMU)
     #define IMU GY85IMU
 #elif defined(USE_MPU6050_IMU)
     #define IMU MPU6050IMU
