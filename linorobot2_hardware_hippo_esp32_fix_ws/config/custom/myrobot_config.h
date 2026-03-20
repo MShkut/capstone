@@ -21,8 +21,8 @@
 #define MOTOR2_ENCODER_A 19   // Right encoder A
 #define MOTOR2_ENCODER_B 21   // Right encoder B
 // Invert encoders if direction is wrong (test and adjust)
-#define MOTOR1_ENCODER_INV false
-#define MOTOR2_ENCODER_INV false
+#define MOTOR1_ENCODER_INV true
+#define MOTOR2_ENCODER_INV true
 // Motor characteristics (MEASURE THESE FOR YOUR MOTORS)
 #define MOTOR_MAX_RPM 200          // Max RPM of your motors
 #define MAX_RPM_RATIO 0.85         // Safety margin (85% of max)
@@ -31,8 +31,8 @@
 #define COUNTS_PER_REV1 1320       // Encoder ticks per revolution (LEFT - CALIBRATE THIS)
 #define COUNTS_PER_REV2 1320       // Encoder ticks per revolution (RIGHT - CALIBRATE THIS)
 // Robot dimensions (MEASURE YOUR ROBOT)
-#define WHEEL_DIAMETER 0.065       // Wheel diameter in meters
-#define TRACK_WIDTH 0.25           // Distance between wheels in meters
+#define WHEEL_DIAMETER 0.06922    // measured tooth-tip diameter 69.22mm
+#define TRACK_WIDTH 0.22935  // measured shaft centre-to-centre 229.35mm
 // PID coefficients (START WITH THESE, TUNE LATER)
 #define K_P 0.6
 #define K_I 0.3
@@ -54,7 +54,7 @@
 #define ODOM_FRAME_ID "odom"
 // IMU (optional)
 #define USE_IMU false
-//#define USE_REALSENSE_IMU
+
 
 // #define IMU imu              // only if USE_IMU true
 #endif
